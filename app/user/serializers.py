@@ -3,6 +3,7 @@ Serializers for the user Api view
 '''
 
 from rest_framework import serializers
+
 from django.contrib.auth import (
     get_user_model,
     authenticate
