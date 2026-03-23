@@ -9,7 +9,7 @@ services:
     name: recipe-api
     runtime: python
     buildCommand: "./build.sh"
-    startCommand: "gunicorn --chdir app app.wsgi:application"
+    startCommand: "./start.sh"
     envVars:
       - key: DATABASE_URL
         fromDatabase:

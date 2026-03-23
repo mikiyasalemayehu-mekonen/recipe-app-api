@@ -3,6 +3,7 @@ LABEL maintainer="Miki Liland"
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./start.sh /start.sh
+RUN chmod +x /start.sh
 COPY ./app /app
 WORKDIR /app
 EXPOSE 8000
