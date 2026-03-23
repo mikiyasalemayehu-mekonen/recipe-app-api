@@ -1,36 +1,39 @@
-FROM python:3.9-slim
+FROM python:3.9-alpine
 LABEL maintainer="Miki Liland"
-
-ENV PYTHONUNBUFFERED=1
-
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libpq-dev \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
-
-RUN python -m venv /py && \
-    /py/bin/pip install --upgrade pip
+COPY ./app /app
+WORKDIR /app
+EXPOSE 8000
 
 ARG DEV=false
-RUN /py/bin/pip install -r /tmp/requirements.txt && \
+
+RUN python -m venv /py && \
+    /py/bin/pip install --upgrade pip && \
+    apk add --update --no-cache postgresql-client jpeg-dev && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base \
+        postgresql-dev \
+        musl-dev \
+        zlib \
+        zlib-dev \
+        linux-headers && \
+    /py/bin/pip install -r /tmp/requirements.txt && \
     if [ "$DEV" = "true" ]; then \
         /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     fi && \
-    rm -rf /tmp
-
-COPY ./app /app
-WORKDIR /app
-
-# Comment out or remove the non-root user for development
-# RUN useradd --system --no-create-home django-user
+    apk del .tmp-build-deps && \
+    rm -rf /var/cache/apk/* /tmp/* && \
+    adduser \
+        --disabled-password \
+        --no-create-home \
+        django-user && \
+    mkdir -p /vol/web/media && \
+    mkdir -p /vol/web/static && \
+    chown -R django-user:django-user /vol && \
+    chmod -R 755 /vol && \
+    chmod -R +x /vol
 
 ENV PATH="/py/bin:$PATH"
 
-# Don't switch to non-root user in development
-# USER django-user
-
-EXPOSE 8000
+USER django-user
