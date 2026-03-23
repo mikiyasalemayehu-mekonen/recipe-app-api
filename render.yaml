@@ -20,7 +20,7 @@ services:
       - key: DEBUG
         value: False
       - key: ALLOWED_HOSTS
-        sync: false
+        value: recipe-api.onrender.com
       - key: DB_NAME
         fromDatabase:
           name: recipe-db
